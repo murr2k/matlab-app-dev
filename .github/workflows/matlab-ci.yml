@@ -115,7 +115,7 @@ jobs:
             options.maxWidth = 800;
             
             try
-                publish('run_all_demos', options);
+                publish('run_all_demos_publish', options);
                 disp('Documentation generated successfully!');
             catch ME
                 disp('Error generating documentation:');
