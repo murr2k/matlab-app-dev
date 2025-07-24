@@ -46,7 +46,7 @@ function plot_phase_space(t, x, v, varargin)
     % Add colorbar for time
     c = colorbar;
     c.Label.String = 'Time';
-    caxis([t(1) t(end)]);
+    clim([t(1) t(end)]);
     
     % Labels and formatting
     xlabel(p.Results.XLabel);
