@@ -76,9 +76,12 @@ jobs:
         uses: matlab-actions/run-command@v2
         with:
           command: |
+            set(0, 'DefaultFigureVisible', 'off');
             addpath(genpath('src'));
             addpath('examples');
-            publish('run_all_demos', 'format', 'html', 'outputDir', 'docs/html');
+            mkdir('docs/html');
+            publish('run_all_demos', 'format', 'html', 'outputDir', 'docs/html', ...
+                    'showCode', true, 'evalCode', false);
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
