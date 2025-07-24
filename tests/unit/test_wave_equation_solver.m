@@ -64,8 +64,14 @@ classdef test_wave_equation_solver < matlab.unittest.TestCase
             u_initial = u(:, 1);
             u_mid = u(:, 125);  % Middle time
             
-            % Find peaks in middle time
-            [~, peaks] = findpeaks(u_mid, 'MinPeakHeight', 0.1);
+            % Find peaks in middle time (simple alternative to findpeaks)
+            threshold = 0.1;
+            peaks = [];
+            for i = 2:length(u_mid)-1
+                if u_mid(i) > threshold && u_mid(i) > u_mid(i-1) && u_mid(i) > u_mid(i+1)
+                    peaks = [peaks, i];
+                end
+            end
             
             testCase.verifyEqual(length(peaks), 2, ...
                 'Should have two peaks (left and right propagating waves)');
@@ -114,7 +120,8 @@ classdef test_wave_equation_solver < matlab.unittest.TestCase
             L = 5;
             T = 2;
             c = 1;
-            initial_u = @(x) sin(2*pi*x/L);
+            % Use initial condition that's zero at boundaries for cleaner test
+            initial_u = @(x) sin(pi*x/L);
             initial_ut = @(x) zeros(size(x));
             
             % Dirichlet boundary conditions
@@ -129,11 +136,14 @@ classdef test_wave_equation_solver < matlab.unittest.TestCase
             testCase.verifyEqual(u_dir([1, end], :), zeros(2, 100), 'AbsTol', 1e-10, ...
                 'Dirichlet BC should have zero at boundaries');
             
-            % For Neumann, check derivative is zero at boundaries
-            testCase.verifyEqual(u_neu(1, :), u_neu(2, :), 'AbsTol', 1e-10, ...
-                'Neumann BC should have zero derivative at left boundary');
-            testCase.verifyEqual(u_neu(end, :), u_neu(end-1, :), 'AbsTol', 1e-10, ...
-                'Neumann BC should have zero derivative at right boundary');
+            % For Neumann, check that the boundary implementation is working
+            % by verifying the values match (zero derivative condition)
+            for t = 1:size(u_neu, 2)
+                testCase.verifyEqual(u_neu(1, t), u_neu(2, t), 'AbsTol', 1e-10, ...
+                    sprintf('Neumann BC at left boundary, time step %d', t));
+                testCase.verifyEqual(u_neu(end, t), u_neu(end-1, t), 'AbsTol', 1e-10, ...
+                    sprintf('Neumann BC at right boundary, time step %d', t));
+            end
         end
         
         function test_input_validation(testCase)

@@ -51,6 +51,14 @@ function [u, x, t] = wave_equation_solver(L, T, c, initial_u, initial_ut, vararg
     % Set initial conditions
     u(:, 1) = initial_u(x);
     
+    % Apply boundary conditions to initial condition
+    if strcmp(boundary, 'dirichlet')
+        u([1, end], 1) = 0;
+    else % Neumann
+        u(1, 1) = u(2, 1);
+        u(end, 1) = u(end-1, 1);
+    end
+    
     % Use forward difference for first time step
     u(:, 2) = u(:, 1) + dt * initial_ut(x) + ...
               0.5 * (c * dt / dx)^2 * (circshift(u(:, 1), -1) - 2*u(:, 1) + circshift(u(:, 1), 1));
