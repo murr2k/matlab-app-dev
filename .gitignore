@@ -1,0 +1,49 @@
+# MATLAB specific files
+*.asv
+*.m~
+*.mex*
+*.mlx
+*.mat
+*.fig
+
+# Simulink specific files
+*.slx.autosave
+*.slxc
+*.slx.bak
+*.mdl.bak
+slprj/
+*.original
+
+# MATLAB/Simulink code generation
+*_ert_rtw/
+*_grt_rtw/
+*_autosar_rtw/
+*.c
+*.h
+*.tlc
+
+# Test and coverage artifacts
+test-results/
+code-coverage/
+*.xml
+
+# Build artifacts
+build/
+dist/
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project specific
+temp/
+output/
+logs/
+.hive-mind/

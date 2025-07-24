@@ -1,0 +1,88 @@
+name: MATLAB CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run MATLAB Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: R2023b
+      
+      - name: Run tests
+        uses: matlab-actions/run-tests@v2
+        with:
+          source-folder: src
+          test-results-junit: test-results/results.xml
+          code-coverage-cobertura: code-coverage/coverage.xml
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/results.xml
+      
+      - name: Upload code coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: code-coverage
+          path: code-coverage/coverage.xml
+
+  build:
+    name: Build MATLAB Project
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: R2023b
+      
+      - name: Run build
+        uses: matlab-actions/run-build@v2
+        with:
+          tasks: build
+
+  lint:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: R2023b
+      
+      - name: Run MATLAB command
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            addpath(genpath('src'));
+            issues = checkcode('src', '-fullpath', '-struct');
+            if ~isempty(issues)
+                for i = 1:length(issues)
+                    fprintf('%s:%d:%d: %s\n', issues(i).filename, issues(i).line, issues(i).column, issues(i).message);
+                end
+                error('Code quality issues found');
+            end
