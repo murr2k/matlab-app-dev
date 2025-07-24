@@ -77,7 +77,8 @@ jobs:
         with:
           command: |
             addpath(genpath('src'));
-            publish('examples/run_all_demos.m', 'format', 'html', 'outputDir', 'docs/html');
+            addpath('examples');
+            publish('run_all_demos', 'format', 'html', 'outputDir', 'docs/html');
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
