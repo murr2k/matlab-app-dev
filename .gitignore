@@ -1,49 +1,65 @@
-# MATLAB specific files
+# MATLAB autosave files
 *.asv
-*.m~
-*.mex*
-*.mlx
-*.mat
-*.fig
 
-# Simulink specific files
-*.slx.autosave
+# Simulink autosave files
+*.autosave
 *.slxc
-*.slx.bak
-*.mdl.bak
+
+# MATLAB compiled files
+*.mex*
+*.p
+
+# Simulink cache files
 slprj/
-*.original
+sccprj/
 
-# MATLAB/Simulink code generation
-*_ert_rtw/
-*_grt_rtw/
-*_autosar_rtw/
-*.c
-*.h
-*.tlc
+# MATLAB/Simulink temporary files
+*.r20*
+*.mdl
+*.mdlp
+*.slx.original
+*.slmx
 
-# Test and coverage artifacts
-test-results/
+# Coverage reports
+htmlcov/
+*.gcov
 code-coverage/
-*.xml
 
-# Build artifacts
-build/
-dist/
+# Test results
+test-results/
+*.tap
 
-# IDE specific files
-.vscode/
-.idea/
-*.swp
-*.swo
+# MATLAB Project files
+*.prj
+resources/project/*.xml
+
+# Documentation build files
+docs/html/
+docs/latex/
+*.aux
+*.log
+*.synctex.gz
 
 # OS specific files
 .DS_Store
 Thumbs.db
-desktop.ini
+*~
 
-# Project specific
-temp/
-output/
-logs/
-.hive-mind/
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Dependency directories
+matlab_packages/
+
+# Build outputs
+build/
+dist/
+*.mlappinstall
+*.mltbx
+
+# Local environment files
+.env
+.env.local
+startup_local.m

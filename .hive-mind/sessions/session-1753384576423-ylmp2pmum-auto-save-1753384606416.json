@@ -1,0 +1,81 @@
+{
+  "sessionId": "session-1753384576423-ylmp2pmum",
+  "checkpointId": "checkpoint-1753384606416-okkqepudx",
+  "checkpointName": "auto-save-1753384606416",
+  "timestamp": "2025-07-24T19:16:46.416Z",
+  "data": {
+    "timestamp": "2025-07-24T19:16:46.416Z",
+    "changeCount": 5,
+    "changesByType": {
+      "swarm_created": [
+        {
+          "type": "swarm_created",
+          "data": {
+            "swarmId": "swarm-1753384576409-47zpjapwu",
+            "swarmName": "hive-1753384576339",
+            "objective": "Implement a Matlab development environment for physics simulations and simulink. Set up a CICD pipeline with Github actions using https://github.com/matlab-actions",
+            "workerCount": 8
+          },
+          "timestamp": "2025-07-24T19:16:16.424Z"
+        }
+      ],
+      "agent_activity": [
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1753384576409-47zpjapwu-0",
+            "activity": "spawned",
+            "data": {
+              "type": "researcher",
+              "name": "Researcher Worker 1"
+            }
+          },
+          "timestamp": "2025-07-24T19:16:16.451Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1753384576409-47zpjapwu-1",
+            "activity": "spawned",
+            "data": {
+              "type": "coder",
+              "name": "Coder Worker 2"
+            }
+          },
+          "timestamp": "2025-07-24T19:16:16.464Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1753384576409-47zpjapwu-2",
+            "activity": "spawned",
+            "data": {
+              "type": "analyst",
+              "name": "Analyst Worker 3"
+            }
+          },
+          "timestamp": "2025-07-24T19:16:16.478Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1753384576409-47zpjapwu-3",
+            "activity": "spawned",
+            "data": {
+              "type": "tester",
+              "name": "Tester Worker 4"
+            }
+          },
+          "timestamp": "2025-07-24T19:16:16.491Z"
+        }
+      ]
+    },
+    "statistics": {
+      "tasksProcessed": 0,
+      "tasksCompleted": 0,
+      "memoryUpdates": 0,
+      "agentActivities": 4,
+      "consensusDecisions": 0
+    }
+  }
+}
