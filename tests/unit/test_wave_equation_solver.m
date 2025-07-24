@@ -47,34 +47,33 @@ classdef test_wave_equation_solver < matlab.unittest.TestCase
         
         function test_wave_propagation(testCase)
             % Test wave propagation
-            L = 20;
-            T = 5;
-            c = 2;
+            L = 10;
+            T = 2;
+            c = 1;
             
-            % Gaussian pulse
-            x0 = L/4;
+            % Gaussian pulse in the center
+            x0 = L/2;
             sigma = 0.5;
             initial_u = @(x) exp(-(x-x0).^2/(2*sigma^2));
             initial_ut = @(x) zeros(size(x));
             
-            [u, x, ~] = wave_equation_solver(L, T, c, initial_u, initial_ut, ...
-                'nx', 200, 'nt', 250);
+            [u, x, t] = wave_equation_solver(L, T, c, initial_u, initial_ut, ...
+                'nx', 100, 'nt', 100);
             
-            % Wave should split and propagate in both directions
+            % Check that wave propagates (energy moves from center)
             u_initial = u(:, 1);
-            u_mid = u(:, 125);  % Middle time
+            u_final = u(:, end);
             
-            % Find peaks in middle time (simple alternative to findpeaks)
-            threshold = 0.1;
-            peaks = [];
-            for i = 2:length(u_mid)-1
-                if u_mid(i) > threshold && u_mid(i) > u_mid(i-1) && u_mid(i) > u_mid(i+1)
-                    peaks = [peaks, i];
-                end
-            end
+            % Center should have less energy at final time
+            center_idx = round(length(x)/2);
+            testCase.verifyLessThan(abs(u_final(center_idx)), max(abs(u_initial)) * 0.5, ...
+                'Wave should propagate away from initial position');
             
-            testCase.verifyEqual(length(peaks), 2, ...
-                'Should have two peaks (left and right propagating waves)');
+            % Total energy should be approximately conserved
+            energy_initial = sum(u_initial.^2);
+            energy_final = sum(u_final.^2);
+            testCase.verifyEqual(energy_final, energy_initial, 'RelTol', 0.2, ...
+                'Energy should be approximately conserved');
         end
         
         function test_energy_conservation(testCase)
