@@ -8,6 +8,8 @@ end
 
 % Set up for saving plots
 set(0, 'DefaultFigureVisible', 'off');
+set(0, 'DefaultFigureWindowStyle', 'normal');
+set(0, 'DefaultFigurePaperPositionMode', 'auto');
 
 %% Generate Pendulum Simulation Plot
 fprintf('Creating pendulum simulation plot...\n');
@@ -20,7 +22,7 @@ tspan = [0 20];
 [t1, theta1, omega1] = pendulum_simulation(L, theta0, omega0, tspan);
 [t2, theta2, omega2] = pendulum_simulation(L, theta0, omega0, tspan, 'damping', 0.5);
 
-fig1 = figure('Position', [100 100 800 600]);
+fig1 = figure();
 subplot(2,2,1);
 plot(t1, theta1*180/pi, 'b-', t2, theta2*180/pi, 'r--', 'LineWidth', 2);
 xlabel('Time (s)'); ylabel('Angle (degrees)');
@@ -59,7 +61,7 @@ tspan = [0 4];
 [t_drag, pos_drag, ~] = particle_dynamics(mass, force_with_drag, x0, v0, tspan);
 [t_no_drag, pos_no_drag, ~] = particle_dynamics(mass, force_no_drag, x0, v0, tspan);
 
-fig2 = figure('Position', [100 100 800 400]);
+fig2 = figure();
 subplot(1,2,1);
 plot3(pos_drag(:,1), pos_drag(:,2), pos_drag(:,3), 'r-', 'LineWidth', 2);
 hold on;
@@ -93,7 +95,7 @@ initial_ut = @(x) zeros(size(x));
 
 [u, x, t] = wave_equation_solver(L, T, c, initial_u, initial_ut, 'nx', 100, 'nt', 100);
 
-fig3 = figure('Position', [100 100 800 600]);
+fig3 = figure();
 time_indices = round(linspace(1, length(t), 6));
 
 for i = 1:6
