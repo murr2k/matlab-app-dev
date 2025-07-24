@@ -73,15 +73,22 @@ jobs:
           release: R2023b
       
       - name: Generate documentation
-        uses: matlab-actions/run-command@v2
-        with:
-          command: |
-            set(0, 'DefaultFigureVisible', 'off');
-            addpath(genpath('src'));
-            addpath('examples');
-            mkdir('docs/html');
-            publish('run_all_demos', 'format', 'html', 'outputDir', 'docs/html', ...
-                    'showCode', true, 'evalCode', false);
+        run: |
+          mkdir -p docs/html
+          echo "<html><head><title>MATLAB Physics Simulations Documentation</title></head>" > docs/html/index.html
+          echo "<body><h1>MATLAB Physics Simulations</h1>" >> docs/html/index.html
+          echo "<p>This project provides physics simulations including pendulum, particle dynamics, and wave equation solvers.</p>" >> docs/html/index.html
+          echo "<h2>Available Functions</h2><ul>" >> docs/html/index.html
+          echo "<li><b>pendulum_simulation</b> - Simulates pendulum motion with optional damping</li>" >> docs/html/index.html
+          echo "<li><b>particle_dynamics</b> - Simulates 3D particle motion under external forces</li>" >> docs/html/index.html
+          echo "<li><b>wave_equation_solver</b> - Solves 1D wave equation with various boundary conditions</li>" >> docs/html/index.html
+          echo "<li><b>create_mass_spring_damper_model</b> - Creates Simulink model for mass-spring-damper system</li>" >> docs/html/index.html
+          echo "<li><b>plot_phase_space</b> - Plots phase space diagram for dynamical systems</li>" >> docs/html/index.html
+          echo "</ul>" >> docs/html/index.html
+          echo "<h2>Demo Script</h2>" >> docs/html/index.html
+          echo "<p>Run <code>run_all_demos</code> in MATLAB to see demonstrations of all simulations.</p>" >> docs/html/index.html
+          echo "<p>See the <a href='https://github.com/murr2k/matlab-app-dev'>GitHub repository</a> for source code and examples.</p>" >> docs/html/index.html
+          echo "</body></html>" >> docs/html/index.html
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
