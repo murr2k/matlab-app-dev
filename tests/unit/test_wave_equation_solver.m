@@ -142,13 +142,13 @@ classdef test_wave_equation_solver < matlab.unittest.TestCase
             initial_ut = @(x) zeros(size(x));
             
             testCase.verifyError(@() wave_equation_solver(-1, 1, 1, initial_u, initial_ut), ...
-                'MATLAB:expectedPositive', 'Negative length should error');
+                'MATLAB:wave_equation_solver:expectedPositive', 'Negative length should error');
             
             testCase.verifyError(@() wave_equation_solver(1, -1, 1, initial_u, initial_ut), ...
-                'MATLAB:expectedPositive', 'Negative time should error');
+                'MATLAB:wave_equation_solver:expectedPositive', 'Negative time should error');
             
             testCase.verifyError(@() wave_equation_solver(1, 1, -1, initial_u, initial_ut), ...
-                'MATLAB:expectedPositive', 'Negative wave speed should error');
+                'MATLAB:wave_equation_solver:expectedPositive', 'Negative wave speed should error');
         end
     end
 end

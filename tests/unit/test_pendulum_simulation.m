@@ -87,10 +87,10 @@ classdef test_pendulum_simulation < matlab.unittest.TestCase
         function test_input_validation(testCase)
             % Test input validation
             testCase.verifyError(@() pendulum_simulation(-1, 0, 0, [0 1]), ...
-                'MATLAB:expectedPositive', 'Negative length should error');
+                'MATLAB:pendulum_simulation:expectedPositive', 'Negative length should error');
             
             testCase.verifyError(@() pendulum_simulation(1, 0, 0, [1]), ...
-                'MATLAB:expectedNumel', 'Single timespan should error');
+                'MATLAB:pendulum_simulation:incorrectNumel', 'Single timespan should error');
             
             testCase.verifyError(@() pendulum_simulation(1, 0, 0, [0 1], 'damping', -1), ...
                 'MATLAB:InputParser:ArgumentFailedValidation', 'Negative damping should error');

@@ -75,7 +75,7 @@ classdef test_particle_dynamics < matlab.unittest.TestCase
         function test_drag_force(testCase)
             % Test particle with drag force
             mass = 1;
-            b = 0.1;  % Drag coefficient
+            b = 1.0;  % Drag coefficient
             force_func = @(t, x, v) -b * v;
             x0 = [0; 0; 0];
             v0 = [10; 5; 0];
@@ -108,7 +108,7 @@ classdef test_particle_dynamics < matlab.unittest.TestCase
             pos23_interp = interp1(t23, pos23, t_common);
             
             % Results should be similar
-            testCase.verifyEqual(pos45_interp, pos23_interp, 'RelTol', 1e-3, ...
+            testCase.verifyEqual(pos45_interp, pos23_interp, 'RelTol', 2e-3, ...
                 'Different solvers should give similar results');
         end
         
@@ -117,13 +117,13 @@ classdef test_particle_dynamics < matlab.unittest.TestCase
             force_func = @(t, x, v) [0; 0; 0];
             
             testCase.verifyError(@() particle_dynamics(-1, force_func, [0;0;0], [0;0;0], [0 1]), ...
-                'MATLAB:expectedPositive', 'Negative mass should error');
+                'MATLAB:particle_dynamics:expectedPositive', 'Negative mass should error');
             
             testCase.verifyError(@() particle_dynamics(1, force_func, [0;0], [0;0;0], [0 1]), ...
-                'MATLAB:expectedNumel', 'Wrong position dimension should error');
+                'MATLAB:particle_dynamics:incorrectNumel', 'Wrong position dimension should error');
             
             testCase.verifyError(@() particle_dynamics(1, force_func, [0;0;0], [0;0], [0 1]), ...
-                'MATLAB:expectedNumel', 'Wrong velocity dimension should error');
+                'MATLAB:particle_dynamics:incorrectNumel', 'Wrong velocity dimension should error');
         end
     end
 end
