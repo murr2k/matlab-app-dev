@@ -74,54 +74,16 @@ jobs:
         with:
           release: R2023b
       
-      - name: Install virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-      
-      - name: Generate documentation
-        run: |
-          export DISPLAY=:99
-          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          sleep 3
-        
-      - name: Generate MATLAB documentation with plots
+      - name: Generate documentation with plots
         uses: matlab-actions/run-command@v2
         with:
           command: |
-            % Set up for headless plotting
-            set(0, 'DefaultFigureVisible', 'off');
-            set(0, 'DefaultFigurePaperPositionMode', 'auto');
-            
             % Add paths
             addpath(genpath('src'));
             addpath('examples');
             
-            % Create output directory
-            if ~exist('docs/html', 'dir')
-                mkdir('docs/html');
-            end
-            
-            % Publish the demo script with plots
-            options = struct();
-            options.format = 'html';
-            options.outputDir = 'docs/html';
-            options.showCode = true;
-            options.evalCode = true;
-            options.catchError = false;
-            options.figureSnapMethod = 'print';
-            options.imageFormat = 'png';
-            options.maxHeight = 600;
-            options.maxWidth = 800;
-            
-            try
-                publish('run_all_demos_publish', options);
-                disp('Documentation generated successfully!');
-            catch ME
-                disp('Error generating documentation:');
-                disp(ME.message);
-                rethrow(ME);
-            end
+            % Run documentation generation script
+            generate_docs;
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
