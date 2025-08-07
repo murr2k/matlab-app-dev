@@ -62,4 +62,4 @@ dist/
 # Local environment files
 .env
 .env.local
-startup_local.m
+startup_local.mwiki/

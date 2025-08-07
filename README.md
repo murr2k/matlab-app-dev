@@ -27,7 +27,7 @@ matlab/
 └── README.md
 ```
 
-## Features
+## Current Features
 
 ### Physics Simulations
 
@@ -49,6 +49,51 @@ matlab/
 ### Simulink Models
 
 - **Mass-Spring-Damper System**: A configurable model for mechanical system simulation
+
+### CI/CD Pipeline
+
+- **GitHub Actions Integration**: Automated testing with matlab-actions
+- **Comprehensive Test Suite**: Unit tests, integration tests, and performance benchmarks
+- **Code Quality Checks**: Automated code analysis and coverage reports
+- **Build System**: Automated project builds with `buildfile.m`
+
+### MATLAB Drive Integration
+
+- **Windows Mount Path**: `/mnt/c/Users/murr2/MATLAB Drive` (WSL)
+- **Linux Symlink Path**: `~/matlab-cloud`
+- **Cloud Storage Access**: Seamless access to MATLAB Drive files
+
+## Planned Features (Roadmap)
+
+### Phase 1: MATLAB Engine API Integration (Issue #1)
+- **Python-MATLAB Bridge**: Native Python bindings for MATLAB computations
+- **Session Management**: Persistent MATLAB workspace across Python calls
+- **Data Type Conversion**: Seamless conversion between Python and MATLAB types
+- **Async Computation**: Non-blocking MATLAB function calls from Python
+
+### Phase 2: Enhanced matlab-computational-engineer Agent (Issue #2)
+- **Intelligent Problem Classification**: Automatic detection of problem types
+- **Smart Stopping Conditions**: Prevent over-solving with domain-aware termination
+- **Symbolic Math Support**: Full access to MATLAB Symbolic Math Toolbox
+- **Performance Optimization**: 40x faster than REST API approach
+
+### Phase 3: Graphical Solution Termination (Issue #3)
+- **Graphics Detection**: Recognize when plots/charts are the solution
+- **Headless Support**: Automatic figure saving in CI environments
+- **Multi-Figure Handling**: Track complex visualizations with multiple plots
+- **Intelligent Termination**: Stop processing when visual answer is delivered
+
+### Phase 4: Specialized Problem Domains (Issue #4)
+- **Control Systems Design**: PID tuning, Bode plots, stability analysis
+- **Machine Learning**: Neural network training with accuracy targets
+- **Physical Modeling (Simscape)**: Multi-domain system simulation
+- **Computational Fluid Dynamics**: Heat transfer and flow analysis
+- **Computer Vision**: Image processing pipelines and feature extraction
+- **Financial Modeling**: Time series analysis and risk calculations
+- **Test & Measurement**: Instrument control and data acquisition
+- **Biomedical Modeling**: Bioinformatics and medical imaging
+- **Communications & RF**: Antenna design and wireless systems
+- **Quantum Computing**: Quantum circuits and algorithm simulation
 
 ## Getting Started
 
