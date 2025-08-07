@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matlab-engine-api
+spec:
+  template:
+    spec:
+      containers:
+      - name: matlab-engine-api
+        env:
+        - name: MATLAB_ENGINE_ENV
+          value: "production"
+        - name: MATLAB_ENGINE_WORKERS
+          value: "8"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: matlab-engine-api-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rate-limit: "200"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  rules:
+  - host: matlab-engine-prod.example.com

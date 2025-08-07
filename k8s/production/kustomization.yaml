@@ -1,0 +1,56 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: matlab-engine-prod
+
+resources:
+- ../base/deployment.yaml
+- ../base/ingress.yaml  
+- ../base/monitoring.yaml
+
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 5
+  target:
+    kind: Deployment
+    name: matlab-engine-api
+
+- patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/memory
+      value: "2Gi"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/cpu
+      value: "1000m"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/memory
+      value: "8Gi"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/cpu
+      value: "4000m"
+  target:
+    kind: Deployment
+    name: matlab-engine-api
+
+patchesStrategicMerge:
+- production-config.yaml
+
+configMapGenerator:
+- name: matlab-engine-config
+  behavior: merge
+  literals:
+  - MATLAB_ENGINE_ENV=production
+  - MATLAB_ENGINE_LOG_LEVEL=INFO
+  - MATLAB_ENGINE_WORKERS=8
+
+secretGenerator:
+- name: matlab-engine-secrets
+  behavior: merge
+  files:
+  - secrets.env
+
+images:
+- name: ghcr.io/murr2k/matlab-app-dev/matlab-python-engine
+  newTag: "v1.0.0"

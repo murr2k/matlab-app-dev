@@ -1,0 +1,226 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matlab-engine-api
+  labels:
+    app: matlab-engine-api
+    component: backend
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: matlab-engine-api
+  template:
+    metadata:
+      labels:
+        app: matlab-engine-api
+        component: backend
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: matlab-engine-api
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      
+      containers:
+      - name: matlab-engine-api
+        image: ghcr.io/murr2k/matlab-app-dev/matlab-python-engine:latest
+        imagePullPolicy: Always
+        
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        
+        env:
+        - name: MATLAB_ENGINE_ENV
+          value: "production"
+        - name: MATLAB_ENGINE_PORT
+          value: "8000"
+        - name: MATLAB_ENGINE_WORKERS
+          value: "4"
+        - name: MATLAB_ENGINE_TIMEOUT
+          value: "300"
+        - name: PYTHONPATH
+          value: "/app/src/python"
+        - name: DISPLAY
+          value: ":99"
+        
+        envFrom:
+        - configMapRef:
+            name: matlab-engine-config
+        - secretRef:
+            name: matlab-engine-secrets
+        
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - /app/healthcheck.py
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - /app/healthcheck.py
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        startupProbe:
+          exec:
+            command:
+            - python
+            - /app/healthcheck.py
+            - --startup-check
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 10
+          failureThreshold: 20
+        
+        volumeMounts:
+        - name: matlab-logs
+          mountPath: /app/logs
+        - name: matlab-data
+          mountPath: /app/data
+        - name: matlab-config
+          mountPath: /app/config
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false  # MATLAB requires write access
+          capabilities:
+            drop:
+            - ALL
+      
+      volumes:
+      - name: matlab-logs
+        persistentVolumeClaim:
+          claimName: matlab-logs-pvc
+      - name: matlab-data
+        persistentVolumeClaim:
+          claimName: matlab-data-pvc
+      - name: matlab-config
+        configMap:
+          name: matlab-engine-config
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - matlab-engine-api
+              topologyKey: kubernetes.io/hostname
+      
+      tolerations:
+      - key: "matlab-workload"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matlab-engine-api-service
+  labels:
+    app: matlab-engine-api
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: matlab-engine-api
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matlab-engine-config
+data:
+  MATLAB_ENGINE_LOG_LEVEL: "INFO"
+  MATLAB_ENGINE_WORKERS: "4"
+  MATLAB_ENGINE_TIMEOUT: "300"
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: matlab-engine-secrets
+type: Opaque
+data:
+  # Base64 encoded secrets - replace with actual values
+  SECRET_KEY: eW91cl9zZWNyZXRfa2V5X2hlcmU=  # your_secret_key_here
+  ENCRYPT_KEY: eW91cl9lbmNyeXB0aW9uX2tleQ==  # your_encryption_key
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: matlab-logs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: matlab-data-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: matlab-engine-api
+  labels:
+    app: matlab-engine-api

@@ -1,0 +1,34 @@
+# Grafana Datasource Configuration for Prometheus
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    version: 1
+    editable: true
+    
+    jsonData:
+      httpMethod: POST
+      queryTimeout: 60s
+      timeInterval: 15s
+      
+    secureJsonData: {}
+    
+  # Additional datasources can be added here
+  - name: MATLAB Engine Metrics
+    type: prometheus  
+    access: proxy
+    url: http://matlab-engine-api:8000/metrics
+    isDefault: false
+    version: 1
+    editable: true
+    
+    jsonData:
+      httpMethod: GET
+      queryTimeout: 30s
+      timeInterval: 15s
+      customQueryParameters: 'format=prometheus'

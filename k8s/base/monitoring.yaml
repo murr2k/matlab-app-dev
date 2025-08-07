@@ -1,0 +1,148 @@
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: matlab-engine-api-metrics
+  labels:
+    app: matlab-engine-api
+    monitoring: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: matlab-engine-api
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: matlab-engine-api-alerts
+  labels:
+    app: matlab-engine-api
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  - name: matlab-engine-api.rules
+    rules:
+    - alert: MATLABEngineHighResponseTime
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High response time for MATLAB Engine API"
+        description: "95th percentile response time is {{ $value }}s for the last 5 minutes"
+    
+    - alert: MATLABEngineHighErrorRate
+      expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "High error rate for MATLAB Engine API"
+        description: "Error rate is {{ $value }} requests per second"
+    
+    - alert: MATLABEnginePodDown
+      expr: up{job="matlab-engine-api"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "MATLAB Engine API pod is down"
+        description: "Pod {{ $labels.pod }} has been down for more than 1 minute"
+    
+    - alert: MATLABEngineHighMemoryUsage
+      expr: container_memory_usage_bytes{pod=~"matlab-engine-api-.*"} / container_spec_memory_limit_bytes > 0.9
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage for MATLAB Engine API"
+        description: "Memory usage is {{ $value | humanizePercentage }} for pod {{ $labels.pod }}"
+    
+    - alert: MATLABEngineActiveSessions
+      expr: matlab_engine_active_sessions > 50
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High number of active MATLAB sessions"
+        description: "{{ $value }} active MATLAB sessions detected"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-matlab-engine
+  labels:
+    grafana_dashboard: "1"
+data:
+  matlab-engine-dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "MATLAB Engine API - Kubernetes",
+        "tags": ["matlab", "engine", "api", "kubernetes"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Pod Status",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(up{job=\"matlab-engine-api\"})",
+                "legendFormat": "Active Pods"
+              }
+            ],
+            "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+          },
+          {
+            "id": 2,
+            "title": "Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(rate(http_requests_total[5m]))",
+                "legendFormat": "Requests/sec"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 6, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "Response Time (95th percentile)",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "95th percentile"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+          },
+          {
+            "id": 4,
+            "title": "Memory Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(container_memory_usage_bytes{pod=~\"matlab-engine-api-.*\"}) by (pod)",
+                "legendFormat": "{{ pod }}"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "10s",
+        "version": 1
+      }
+    }

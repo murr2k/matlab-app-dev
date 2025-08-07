@@ -1,0 +1,74 @@
+name: MATLAB Engine API Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/python/**'
+      - '.github/workflows/matlab-engine-tests.yml'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-mock:
+    name: Mock Tests - ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov pytest-mock numpy pyyaml
+      
+      - name: Run mock tests
+        working-directory: src/python
+        run: |
+          python -m pytest tests/test_matlab_engine_mocks.py -v --tb=short
+          python -m pytest tests/test_regression_suite.py -v --tb=short
+      
+      - name: Generate coverage report
+        working-directory: src/python
+        run: |
+          python -m pytest tests/test_matlab_engine_mocks.py --cov=matlab_engine_wrapper --cov-report=term
+
+  test-hybrid:
+    name: Hybrid Mode Test
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov numpy pyyaml
+      
+      - name: Run test runner script
+        working-directory: src/python
+        shell: bash
+        run: |
+          chmod +x run_matlab_tests.sh
+          ./run_matlab_tests.sh
