@@ -1,0 +1,189 @@
+test_cases:
+  - name: basic_arithmetic_pipeline
+    description: Test basic arithmetic operations through the pipeline
+    setup_commands:
+      - a = 10
+      - b = 5
+    test_commands:
+      - result_add = a + b
+      - result_mult = a * b
+      - result_div = a / b
+    cleanup_commands:
+      - clear a b result_add result_mult result_div
+    expected_results:
+      result_add: 15
+      result_mult: 50
+      result_div: 2.0
+    tolerances:
+      result_add: 1e-15
+      result_mult: 1e-15
+      result_div: 1e-15
+
+  - name: matrix_operations_pipeline
+    description: Test matrix operations pipeline
+    setup_commands:
+      - A = [1, 2; 3, 4]
+      - B = [5, 6; 7, 8]
+    test_commands:
+      - C = A * B
+      - D = inv(A)
+      - det_A = det(A)
+      - trace_A = trace(A)
+    cleanup_commands:
+      - clear A B C D det_A trace_A
+    expected_results:
+      C: [[19, 22], [43, 50]]
+      D: [[-2.0, 1.0], [1.5, -0.5]]
+      det_A: -2.0
+      trace_A: 5.0
+    tolerances:
+      C: 1e-15
+      D: 1e-15
+      det_A: 1e-15
+      trace_A: 1e-15
+
+  - name: physics_simulation_pipeline
+    description: Test physics simulation integration
+    setup_commands:
+      - addpath(fullfile(pwd, "../../physics"))
+    test_commands:
+      - "[t, theta, omega] = pendulum_simulation(1, pi/4, 0, [0 1])"
+      - final_theta = theta(end)
+      - energy_initial = 0.5 * 9.81 * 1 * (1 - cos(pi/4))
+      - energy_final = 0.5 * omega(end)^2 + 0.5 * 9.81 * 1 * (1 - cos(theta(end)))
+    cleanup_commands:
+      - clear t theta omega final_theta energy_initial energy_final
+    expected_results:
+      final_theta: -0.785398163
+    tolerances:
+      final_theta: 0.01
+    requires_physics: true
+    timeout: 30.0
+
+  - name: data_type_conversion_pipeline
+    description: Test Python-MATLAB data type conversions
+    setup_commands: []
+    test_commands:
+      - python_array = py_array
+      - matlab_sum = sum(python_array)
+      - matlab_mean = mean(python_array)
+      - matlab_std = std(python_array)
+    cleanup_commands:
+      - clear python_array matlab_sum matlab_mean matlab_std
+    expected_results: {}
+    tolerances: {}
+    metadata:
+      test_arrays: [[1, 2, 3, 4, 5], [1.1, 2.2, 3.3], [10, 20, 30, 40]]
+
+  - name: error_handling_pipeline
+    description: Test error handling and recovery
+    setup_commands: []
+    test_commands:
+      - try_result = 1 / 0
+    cleanup_commands:
+      - clear try_result
+    expected_results: {}
+    tolerances: {}
+    metadata:
+      expect_error: true
+
+  - name: performance_stress_pipeline
+    description: Test performance under stress
+    setup_commands:
+      - rng(42)
+    test_commands:
+      - large_matrix = randn(1000, 1000)
+      - eig_result = eig(large_matrix)
+      - fft_result = fft(large_matrix)
+      - inv_result = inv(large_matrix)
+    cleanup_commands:
+      - clear large_matrix eig_result fft_result inv_result
+    expected_results: {}
+    tolerances: {}
+    timeout: 120.0
+    metadata:
+      performance_test: true
+
+  - name: trigonometric_precision_pipeline
+    description: Test trigonometric function precision pipeline
+    setup_commands: []
+    test_commands:
+      - sin_pi_half = sin(pi/2)
+      - cos_pi = cos(pi)
+      - tan_pi_quarter = tan(pi/4)
+      - complex_exp = exp(1i * pi)
+    cleanup_commands:
+      - clear sin_pi_half cos_pi tan_pi_quarter complex_exp
+    expected_results:
+      sin_pi_half: 1.0
+      cos_pi: -1.0
+      tan_pi_quarter: 1.0
+      complex_exp: [-1.0, 0.0]
+    tolerances:
+      sin_pi_half: 1e-15
+      cos_pi: 1e-15
+      tan_pi_quarter: 1e-15
+      complex_exp: 1e-15
+
+  - name: statistical_analysis_pipeline
+    description: Test statistical function pipeline
+    setup_commands:
+      - data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    test_commands:
+      - data_mean = mean(data)
+      - data_std = std(data)
+      - data_var = var(data)
+      - data_median = median(data)
+      - correlation_matrix = corrcoef(data, data.^2)
+    cleanup_commands:
+      - clear data data_mean data_std data_var data_median correlation_matrix
+    expected_results:
+      data_mean: 5.5
+      data_std: 3.02765
+      data_var: 9.16667
+      data_median: 5.5
+    tolerances:
+      data_mean: 1e-15
+      data_std: 1e-5
+      data_var: 1e-5
+      data_median: 1e-15
+
+  - name: fft_signal_processing_pipeline
+    description: Test FFT and signal processing pipeline
+    setup_commands:
+      - fs = 1000
+      - t = 0:1/fs:1-1/fs
+      - f1 = 50
+      - f2 = 120
+      - signal = sin(2*pi*f1*t) + 0.5*sin(2*pi*f2*t)
+    test_commands:
+      - signal_fft = fft(signal)
+      - signal_power = abs(signal_fft).^2
+      - signal_reconstructed = real(ifft(signal_fft))
+      - reconstruction_error = max(abs(signal - signal_reconstructed))
+    cleanup_commands:
+      - clear fs t f1 f2 signal signal_fft signal_power signal_reconstructed reconstruction_error
+    expected_results:
+      reconstruction_error: 0.0
+    tolerances:
+      reconstruction_error: 1e-14
+
+  - name: solver_integration_pipeline
+    description: Test equation solver integration pipeline
+    setup_commands: []
+    test_commands:
+      - A_linear = [1, 1; 2, -1]
+      - b_linear = [3; 0]
+      - solution_linear = A_linear \ b_linear
+      - poly_roots = roots([1, -5, 6])
+      - nonlinear_root = fzero(@(x) x^2 - 2, 1)
+    cleanup_commands:
+      - clear A_linear b_linear solution_linear poly_roots nonlinear_root
+    expected_results:
+      solution_linear: [1.0, 2.0]
+      poly_roots: [3.0, 2.0]
+      nonlinear_root: 1.414213562373095
+    tolerances:
+      solution_linear: 1e-15
+      poly_roots: 1e-15
+      nonlinear_root: 1e-10

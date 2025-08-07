@@ -24,13 +24,19 @@ Author: Murray Kopit
 License: MIT
 """
 
-__version__ = "1.1.0"
+__version__ = "2.0.0"
 __author__ = "Murray Kopit"
 __email__ = "murr2k@gmail.com"
 
 # Package metadata
 __all__ = [
     "MATLABEngineWrapper",
-    "HybridSimulations",
-    "ComputationalInterface"
+    "MATLABSessionManager",
+    "MATLABConfig",
+    "TypeConverter",
+    "MATLABEngineError",
+    "MATLABSessionError",
+    "MATLABTypeConversionError",
+    "MATLABExecutionError",
+    "SessionState"
 ]
