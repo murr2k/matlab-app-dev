@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="MATLAB Engine API Real Tests" tests="21" failures="3" time="12.999549150466919" timestamp="2025-08-07T00:19:17.787781">
+  <testsuite name="Basic Arithmetic" tests="6" failures="0" time="1.0635509490966797">
+    <testcase name="sqrt(64)" classname="MATLAB Engine API Real Tests.Basic Arithmetic" time="0.05150556564331055" />
+    <testcase name="2^8" classname="MATLAB Engine API Real Tests.Basic Arithmetic" time="0.5309021472930908" />
+    <testcase name="exp(1)" classname="MATLAB Engine API Real Tests.Basic Arithmetic" time="0.45168328285217285" />
+    <testcase name="log(exp(5))" classname="MATLAB Engine API Real Tests.Basic Arithmetic" time="0.008944988250732422" />
+    <testcase name="10 - 7" classname="MATLAB Engine API Real Tests.Basic Arithmetic" time="0.012022733688354492" />
+    <testcase name="6 * 7" classname="MATLAB Engine API Real Tests.Basic Arithmetic" time="0.008492231369018555" />
+  </testsuite>
+  <testsuite name="Trigonometric Functions" tests="5" failures="0" time="0.11861610412597656">
+    <testcase name="sin(pi/2)" classname="MATLAB Engine API Real Tests.Trigonometric Functions" time="0.10369491577148438" />
+    <testcase name="cos(0)" classname="MATLAB Engine API Real Tests.Trigonometric Functions" time="0.007112741470336914" />
+    <testcase name="tan(pi/4)" classname="MATLAB Engine API Real Tests.Trigonometric Functions" time="0.003087759017944336" />
+    <testcase name="sin(pi)" classname="MATLAB Engine API Real Tests.Trigonometric Functions" time="0.0" />
+    <testcase name="cos(pi/2)" classname="MATLAB Engine API Real Tests.Trigonometric Functions" time="0.0047206878662109375" />
+  </testsuite>
+</testsuites>

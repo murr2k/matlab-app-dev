@@ -1,0 +1,6 @@
+{
+  "timestamp": "2025-08-07T00:19:30.819630",
+  "error": "'charmap' codec can't encode character '\\u2705' in position 17: character maps to <undefined>",
+  "status": "FATAL_ERROR",
+  "test_suite": "MATLAB Engine API Real Tests"
+}

@@ -1,0 +1,144 @@
+{
+  "report_type": "MATLAB Engine API Pipeline Test Results",
+  "generation_timestamp": "2025-08-07T00:19:31.167432",
+  "pipeline_summary": {
+    "timestamp": "2025-08-07T00:19:31-07:00",
+    "environment": "Windows Python from WSL",
+    "python_command": "/mnt/c/Python312/python.exe",
+    "matlab_available": true,
+    "test_execution": {
+      "total_test_suites": 2,
+      "passed_suites": 0,
+      "failed_suites": 2,
+      "success_rate": 0
+    },
+    "artifacts_generated": [
+      "pipeline_summary.json",
+      "test_results.json",
+      "test_results.xml",
+      "performance_metrics.json",
+      "test_summary.md"
+    ]
+  },
+  "detailed_results": {
+    "timestamp": "2025-08-07T00:19:17.787781",
+    "test_suite": "MATLAB Engine API Real Tests",
+    "environment": "Windows Python from WSL",
+    "tests": [],
+    "summary": {
+      "total_tests": 21,
+      "passed": 18,
+      "failed": 3,
+      "success_rate": 85.71428571428571,
+      "total_execution_time": 12.999549150466919,
+      "startup_time": 11.695547342300415
+    },
+    "categories": [
+      {
+        "name": "Basic Arithmetic",
+        "tests": [
+          {
+            "name": "sqrt(64)",
+            "expected": 8.0,
+            "status": "PASS",
+            "actual": 8.0,
+            "error": null,
+            "execution_time": 0.05150556564331055
+          },
+          {
+            "name": "2^8",
+            "expected": 256.0,
+            "status": "PASS",
+            "actual": 256.0,
+            "error": null,
+            "execution_time": 0.5309021472930908
+          },
+          {
+            "name": "exp(1)",
+            "expected": 2.718281828459045,
+            "status": "PASS",
+            "actual": 2.718281828459045,
+            "error": null,
+            "execution_time": 0.45168328285217285
+          },
+          {
+            "name": "log(exp(5))",
+            "expected": 5.0,
+            "status": "PASS",
+            "actual": 5.0,
+            "error": null,
+            "execution_time": 0.008944988250732422
+          },
+          {
+            "name": "10 - 7",
+            "expected": 3.0,
+            "status": "PASS",
+            "actual": 3.0,
+            "error": null,
+            "execution_time": 0.012022733688354492
+          },
+          {
+            "name": "6 * 7",
+            "expected": 42.0,
+            "status": "PASS",
+            "actual": 42.0,
+            "error": null,
+            "execution_time": 0.008492231369018555
+          }
+        ],
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "name": "Trigonometric Functions",
+        "tests": [
+          {
+            "name": "sin(pi/2)",
+            "expected": 1.0,
+            "status": "PASS",
+            "actual": 1.0,
+            "error": null,
+            "execution_time": 0.10369491577148438
+          },
+          {
+            "name": "cos(0)",
+            "expected": 1.0,
+            "status": "PASS",
+            "actual": 1.0,
+            "error": null,
+            "execution_time": 0.007112741470336914
+          },
+          {
+            "name": "tan(pi/4)",
+            "expected": 1.0,
+            "status": "PASS",
+            "actual": 0.9999999999999999,
+            "error": null,
+            "execution_time": 0.003087759017944336
+          },
+          {
+            "name": "sin(pi)",
+            "expected": 0.0,
+            "status": "PASS",
+            "actual": 1.2246467991473532e-16,
+            "error": null,
+            "execution_time": 0.0
+          },
+          {
+            "name": "cos(pi/2)",
+            "expected": 0.0,
+            "status": "PASS",
+            "actual": 6.123233995736766e-17,
+            "error": null,
+            "execution_time": 0.0047206878662109375
+          }
+        ],
+        "passed": 5,
+        "failed": 0
+      }
+    ]
+  },
+  "recommendations": [
+    "Review failed tests for accuracy issues"
+  ]
+}

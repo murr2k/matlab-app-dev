@@ -154,6 +154,81 @@ else
     ((TOTAL_TESTS++))
 fi
 
+# Generate pipeline summary artifacts
+echo -e "\n${BLUE}========================================${NC}"
+echo -e "${BLUE}Generating Test Artifacts${NC}"
+echo -e "${BLUE}========================================${NC}"
+
+# Create artifacts directory
+mkdir -p test_artifacts
+
+# Generate pipeline summary JSON
+cat > test_artifacts/pipeline_summary.json << EOF
+{
+  "timestamp": "$(date -Iseconds)",
+  "environment": "$ENVIRONMENT",
+  "python_command": "$PYTHON_CMD",
+  "matlab_available": $MATLAB_AVAILABLE,
+  "test_execution": {
+    "total_test_suites": $TOTAL_TESTS,
+    "passed_suites": $PASSED_TESTS,
+    "failed_suites": $FAILED_TESTS,
+    "success_rate": $(echo "scale=2; $PASSED_TESTS * 100 / $TOTAL_TESTS" | bc 2>/dev/null || echo "0")
+  },
+  "artifacts_generated": [
+    "pipeline_summary.json",
+    "test_results.json",
+    "test_results.xml",
+    "performance_metrics.json",
+    "test_summary.md"
+  ]
+}
+EOF
+
+# Combine all individual test artifacts into a consolidated report
+if [ -d "test_artifacts" ] && [ "$(ls -A test_artifacts/test_results.json 2>/dev/null)" ]; then
+    echo -e "${GREEN}[✓]${NC} Individual test artifacts found"
+    
+    # Generate consolidated test report
+    $PYTHON_CMD -c "
+import json
+import glob
+from datetime import datetime
+
+# Load pipeline summary
+with open('test_artifacts/pipeline_summary.json', 'r') as f:
+    pipeline = json.load(f)
+
+# Try to load detailed test results if available
+try:
+    with open('test_artifacts/test_results.json', 'r') as f:
+        detailed_results = json.load(f)
+except:
+    detailed_results = None
+
+# Create consolidated report
+consolidated = {
+    'report_type': 'MATLAB Engine API Pipeline Test Results',
+    'generation_timestamp': datetime.now().isoformat(),
+    'pipeline_summary': pipeline,
+    'detailed_results': detailed_results,
+    'recommendations': []
+}
+
+# Add recommendations based on results
+if pipeline['test_execution']['success_rate'] < 100:
+    consolidated['recommendations'].append('Review failed tests for accuracy issues')
+if not pipeline['matlab_available']:
+    consolidated['recommendations'].append('Install MATLAB Engine API for comprehensive testing')
+
+# Save consolidated report
+with open('test_artifacts/consolidated_report.json', 'w') as f:
+    json.dump(consolidated, f, indent=2)
+
+print('Consolidated report generated: test_artifacts/consolidated_report.json')
+" 2>/dev/null
+fi
+
 # Generate summary report
 echo -e "\n${BLUE}========================================${NC}"
 echo -e "${BLUE}Test Results Summary${NC}"
@@ -163,10 +238,30 @@ echo -e "Total Test Suites: $TOTAL_TESTS"
 echo -e "Passed: ${GREEN}$PASSED_TESTS${NC}"
 echo -e "Failed: ${RED}$FAILED_TESTS${NC}"
 
+echo -e "\n${BLUE}Artifacts Generated:${NC}"
+echo -e "  📄 test_artifacts/pipeline_summary.json"
+if [ -f "test_artifacts/test_results.json" ]; then
+    echo -e "  📄 test_artifacts/test_results.json"
+fi
+if [ -f "test_artifacts/test_results.xml" ]; then
+    echo -e "  📄 test_artifacts/test_results.xml"
+fi
+if [ -f "test_artifacts/performance_metrics.json" ]; then
+    echo -e "  📄 test_artifacts/performance_metrics.json"
+fi
+if [ -f "test_artifacts/test_summary.md" ]; then
+    echo -e "  📄 test_artifacts/test_summary.md"
+fi
+if [ -f "test_artifacts/consolidated_report.json" ]; then
+    echo -e "  📄 test_artifacts/consolidated_report.json"
+fi
+
 if [ $FAILED_TESTS -eq 0 ]; then
     echo -e "\n${GREEN}✓ All tests passed successfully!${NC}"
+    echo -e "${GREEN}✓ Test artifacts saved to test_artifacts/${NC}"
     exit 0
 else
     echo -e "\n${RED}✗ Some tests failed. Please review the output above.${NC}"
+    echo -e "${YELLOW}📊 Detailed results available in test_artifacts/${NC}"
     exit 1
 fi

@@ -7,6 +7,10 @@ Windows-compatible version without Unicode characters
 import matlab.engine
 import math
 import time
+import json
+import xml.etree.ElementTree as ET
+from datetime import datetime
+from pathlib import Path
 
 def run_real_matlab_tests():
     """Run actual MATLAB Engine tests with real computations"""
@@ -14,6 +18,15 @@ def run_real_matlab_tests():
     print("=" * 60)
     print("REAL MATLAB ENGINE TEST - NON-MOCKED")
     print("=" * 60)
+    
+    # Initialize test artifacts
+    test_results = {
+        "timestamp": datetime.now().isoformat(),
+        "test_suite": "MATLAB Engine API Real Tests",
+        "environment": "Windows Python from WSL",
+        "tests": [],
+        "summary": {}
+    }
     
     # Start MATLAB Engine
     print("\n[1] Starting MATLAB Engine...")
@@ -25,13 +38,14 @@ def run_real_matlab_tests():
     # Test results tracking
     passed = 0
     failed = 0
+    test_categories = []
     
     print("\n[2] Running Mathematical Validation Tests...")
     print("-" * 40)
     
     # TEST 1: Basic Arithmetic
     print("\n== Basic Arithmetic Tests ==")
-    tests = [
+    arithmetic_tests = [
         ("sqrt(64)", 8.0),
         ("2^8", 256.0),
         ("exp(1)", math.e),
@@ -40,18 +54,43 @@ def run_real_matlab_tests():
         ("6 * 7", 42.0),
     ]
     
-    for expr, expected in tests:
+    category_results = {"name": "Basic Arithmetic", "tests": [], "passed": 0, "failed": 0}
+    
+    for expr, expected in arithmetic_tests:
+        test_start_time = time.time()
+        test_case = {
+            "name": expr,
+            "expected": expected,
+            "status": "FAIL",
+            "actual": None,
+            "error": None,
+            "execution_time": 0
+        }
+        
         try:
             result = eng.eval(expr)
+            test_case["actual"] = float(result)
+            test_case["execution_time"] = time.time() - test_start_time
+            
             if abs(result - expected) < 1e-9:
                 print(f"  [PASS] {expr} = {result:.6f} (expected {expected:.6f})")
+                test_case["status"] = "PASS"
                 passed += 1
+                category_results["passed"] += 1
             else:
                 print(f"  [FAIL] {expr} = {result:.6f} (expected {expected:.6f})")
                 failed += 1
+                category_results["failed"] += 1
         except Exception as e:
+            test_case["error"] = str(e)
+            test_case["execution_time"] = time.time() - test_start_time
             print(f"  [ERROR] {expr} - Error: {e}")
             failed += 1
+            category_results["failed"] += 1
+        
+        category_results["tests"].append(test_case)
+    
+    test_categories.append(category_results)
     
     # TEST 2: Trigonometric Functions
     print("\n== Trigonometric Functions ==")
@@ -63,18 +102,43 @@ def run_real_matlab_tests():
         ("cos(pi/2)", 0.0),
     ]
     
+    trig_category = {"name": "Trigonometric Functions", "tests": [], "passed": 0, "failed": 0}
+    
     for expr, expected in trig_tests:
+        test_start_time = time.time()
+        test_case = {
+            "name": expr,
+            "expected": expected,
+            "status": "FAIL",
+            "actual": None,
+            "error": None,
+            "execution_time": 0
+        }
+        
         try:
             result = eng.eval(expr)
+            test_case["actual"] = float(result)
+            test_case["execution_time"] = time.time() - test_start_time
+            
             if abs(result - expected) < 1e-9:
                 print(f"  [PASS] {expr} = {result:.6f} (expected {expected:.6f})")
+                test_case["status"] = "PASS"
                 passed += 1
+                trig_category["passed"] += 1
             else:
                 print(f"  [FAIL] {expr} = {result:.6f} (expected {expected:.6f})")
                 failed += 1
+                trig_category["failed"] += 1
         except Exception as e:
+            test_case["error"] = str(e)
+            test_case["execution_time"] = time.time() - test_start_time
             print(f"  [ERROR] {expr} - Error: {e}")
             failed += 1
+            trig_category["failed"] += 1
+        
+        trig_category["tests"].append(test_case)
+    
+    test_categories.append(trig_category)
     
     # TEST 3: Matrix Operations
     print("\n== Matrix Operations ==")
@@ -233,22 +297,155 @@ def run_real_matlab_tests():
     eng.quit()
     print("[OK] MATLAB Engine closed")
     
+    # Finalize test results
+    total_execution_time = time.time() - start_time
+    total = passed + failed
+    success_rate = (passed/total)*100 if total > 0 else 0
+    
+    test_results["categories"] = test_categories
+    test_results["summary"] = {
+        "total_tests": total,
+        "passed": passed,
+        "failed": failed,
+        "success_rate": success_rate,
+        "total_execution_time": total_execution_time,
+        "startup_time": startup_time
+    }
+    
+    # Generate test artifacts
+    generate_test_artifacts(test_results)
+    
     # Final Report
     print("\n" + "=" * 60)
     print("TEST RESULTS SUMMARY")
     print("=" * 60)
-    total = passed + failed
     print(f"[PASS] Passed: {passed}/{total}")
     print(f"[FAIL] Failed: {failed}/{total}")
-    print(f"[INFO] Success Rate: {(passed/total)*100:.1f}%")
-    print(f"[TIME] Total Execution Time: {time.time() - start_time:.2f} seconds")
+    print(f"[INFO] Success Rate: {success_rate:.1f}%")
+    print(f"[TIME] Total Execution Time: {total_execution_time:.2f} seconds")
     
     if passed == total:
         print("\n[SUCCESS] ALL TESTS PASSED! MATLAB Engine API is working correctly.")
     else:
         print(f"\n[WARNING] {failed} tests failed. Please review the results above.")
     
+    print("\n[ARTIFACTS] Test results saved to:")
+    print("  - test_results.json")
+    print("  - test_results.xml")
+    print("  - performance_metrics.json")
+    
     return passed, failed
+
+def generate_test_artifacts(test_results):
+    """Generate test result artifacts in multiple formats"""
+    
+    # Create artifacts directory
+    artifacts_dir = Path("test_artifacts")
+    artifacts_dir.mkdir(exist_ok=True)
+    
+    # 1. JSON Test Results
+    json_file = artifacts_dir / "test_results.json"
+    with open(json_file, 'w') as f:
+        json.dump(test_results, f, indent=2, default=str)
+    
+    # 2. XML Test Results (JUnit format)
+    xml_file = artifacts_dir / "test_results.xml"
+    generate_junit_xml(test_results, xml_file)
+    
+    # 3. Performance Metrics
+    performance_file = artifacts_dir / "performance_metrics.json"
+    performance_data = {
+        "timestamp": test_results["timestamp"],
+        "startup_time": test_results["summary"]["startup_time"],
+        "total_execution_time": test_results["summary"]["total_execution_time"],
+        "average_test_time": test_results["summary"]["total_execution_time"] / test_results["summary"]["total_tests"],
+        "performance_by_category": {}
+    }
+    
+    for category in test_results["categories"]:
+        category_time = sum(test["execution_time"] for test in category["tests"])
+        performance_data["performance_by_category"][category["name"]] = {
+            "total_time": category_time,
+            "average_time": category_time / len(category["tests"]) if category["tests"] else 0,
+            "test_count": len(category["tests"])
+        }
+    
+    with open(performance_file, 'w') as f:
+        json.dump(performance_data, f, indent=2)
+    
+    # 4. Test Summary Report
+    summary_file = artifacts_dir / "test_summary.md"
+    generate_markdown_summary(test_results, summary_file)
+
+def generate_junit_xml(test_results, xml_file):
+    """Generate JUnit XML format test results"""
+    
+    root = ET.Element("testsuites")
+    root.set("name", test_results["test_suite"])
+    root.set("tests", str(test_results["summary"]["total_tests"]))
+    root.set("failures", str(test_results["summary"]["failed"]))
+    root.set("time", str(test_results["summary"]["total_execution_time"]))
+    root.set("timestamp", test_results["timestamp"])
+    
+    for category in test_results["categories"]:
+        testsuite = ET.SubElement(root, "testsuite")
+        testsuite.set("name", category["name"])
+        testsuite.set("tests", str(len(category["tests"])))
+        testsuite.set("failures", str(category["failed"]))
+        testsuite.set("time", str(sum(test["execution_time"] for test in category["tests"])))
+        
+        for test in category["tests"]:
+            testcase = ET.SubElement(testsuite, "testcase")
+            testcase.set("name", test["name"])
+            testcase.set("classname", f"{test_results['test_suite']}.{category['name']}")
+            testcase.set("time", str(test["execution_time"]))
+            
+            if test["status"] == "FAIL":
+                failure = ET.SubElement(testcase, "failure")
+                if test["error"]:
+                    failure.set("message", test["error"])
+                    failure.text = test["error"]
+                else:
+                    failure.set("message", f"Expected {test['expected']}, got {test['actual']}")
+                    failure.text = f"Expected {test['expected']}, got {test['actual']}"
+    
+    tree = ET.ElementTree(root)
+    ET.indent(tree, space="  ", level=0)
+    tree.write(xml_file, encoding="utf-8", xml_declaration=True)
+
+def generate_markdown_summary(test_results, summary_file):
+    """Generate markdown test summary report"""
+    
+    with open(summary_file, 'w') as f:
+        f.write(f"# MATLAB Engine API Test Results\n\n")
+        f.write(f"**Test Suite:** {test_results['test_suite']}\n")
+        f.write(f"**Timestamp:** {test_results['timestamp']}\n")
+        f.write(f"**Environment:** {test_results['environment']}\n\n")
+        
+        f.write("## Summary\n\n")
+        summary = test_results["summary"]
+        f.write(f"- **Total Tests:** {summary['total_tests']}\n")
+        f.write(f"- **Passed:** {summary['passed']} ✅\n")
+        f.write(f"- **Failed:** {summary['failed']} ❌\n")
+        f.write(f"- **Success Rate:** {summary['success_rate']:.1f}%\n")
+        f.write(f"- **Execution Time:** {summary['total_execution_time']:.2f} seconds\n")
+        f.write(f"- **Startup Time:** {summary['startup_time']:.2f} seconds\n\n")
+        
+        f.write("## Test Categories\n\n")
+        for category in test_results["categories"]:
+            f.write(f"### {category['name']}\n\n")
+            f.write(f"- Passed: {category['passed']}/{len(category['tests'])}\n")
+            f.write(f"- Failed: {category['failed']}/{len(category['tests'])}\n\n")
+            
+            f.write("| Test | Status | Expected | Actual | Time (s) | Error |\n")
+            f.write("|------|--------|----------|--------|----------|-------|\n")
+            
+            for test in category["tests"]:
+                status_emoji = "✅" if test["status"] == "PASS" else "❌"
+                error_msg = test.get("error", "")[:50] + "..." if test.get("error") and len(test.get("error", "")) > 50 else test.get("error", "")
+                f.write(f"| {test['name']} | {status_emoji} {test['status']} | {test['expected']} | {test.get('actual', 'N/A')} | {test['execution_time']:.3f} | {error_msg} |\n")
+            
+            f.write("\n")
 
 if __name__ == "__main__":
     try:
@@ -260,4 +457,19 @@ if __name__ == "__main__":
         print("1. MATLAB is installed on this system")
         print("2. MATLAB Engine API for Python is installed")
         print("3. MATLAB license is valid")
+        
+        # Generate error artifact
+        error_report = {
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e),
+            "status": "FATAL_ERROR",
+            "test_suite": "MATLAB Engine API Real Tests"
+        }
+        
+        artifacts_dir = Path("test_artifacts")
+        artifacts_dir.mkdir(exist_ok=True)
+        
+        with open(artifacts_dir / "error_report.json", 'w') as f:
+            json.dump(error_report, f, indent=2)
+        
         exit(1)

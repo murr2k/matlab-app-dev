@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-08-07T00:19:17.787781",
+  "startup_time": 11.695547342300415,
+  "total_execution_time": 12.999549150466919,
+  "average_test_time": 0.6190261500222343,
+  "performance_by_category": {
+    "Basic Arithmetic": {
+      "total_time": 1.0635509490966797,
+      "average_time": 0.17725849151611328,
+      "test_count": 6
+    },
+    "Trigonometric Functions": {
+      "total_time": 0.11861610412597656,
+      "average_time": 0.02372322082519531,
+      "test_count": 5
+    }
+  }
+}
